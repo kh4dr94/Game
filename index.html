@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stellar Vanguard - Space Shooter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui-overlay">
+            <div id="score-display">
+                <span id="score">0</span>
+                <span class="label">SCORE</span>
+            </div>
+            <div id="level-display">
+                <span id="level">1</span>
+                <span class="label">WAVE</span>
+            </div>
+            <div id="lives-display">
+                <span id="lives">❤❤❤</span>
+            </div>
+        </div>
+        <div id="start-screen" class="screen">
+            <h1>STELLAR VANGUARD</h1>
+            <p class="subtitle">Defend the galaxy from the alien invasion</p>
+            <div class="controls-info">
+                <p><strong>WASD</strong> or <strong>Arrow Keys</strong> to move</p>
+                <p><strong>SPACE</strong> to shoot</p>
+                <p><strong>P</strong> to pause</p>
+            </div>
+            <button id="start-btn">START MISSION</button>
+        </div>
+        <div id="game-over-screen" class="screen hidden">
+            <h1>MISSION FAILED</h1>
+            <p class="final-score">Final Score: <span id="final-score">0</span></p>
+            <p class="final-wave">Waves Survived: <span id="final-wave">0</span></p>
+            <button id="restart-btn">TRY AGAIN</button>
+        </div>
+        <div id="pause-screen" class="screen hidden">
+            <h1>PAUSED</h1>
+            <p>Press P to resume</p>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
