@@ -320,7 +320,8 @@ class Enemy {
         }
 
         // Enemy escaped off screen - count as gone but no points
-        if (this.y > canvas.height + 50) {
+        if (this.y > canvas.height + 50 && !this.counted) {
+            this.counted = true;
             this.hp = 0;
             enemiesHandled++;
         }
@@ -575,7 +576,8 @@ function updateSpawner() {
 }
 
 function isWaveComplete() {
-    return enemiesToSpawn.length === 0 && enemies.length === 0 && enemiesHandled >= totalWaveEnemies;
+    // Wave is complete when all enemies have been spawned AND none remain on screen
+    return enemiesToSpawn.length === 0 && enemies.length === 0 && totalWaveEnemies > 0;
 }
 
 // ============================================
