@@ -320,7 +320,11 @@ class Enemy {
                 break;
         }
 
-        if (this.y > canvas.height + 50) this.hp = 0;
+        // Enemy escaped off screen - count as gone but no points
+        if (this.y > canvas.height + 50) {
+            this.hp = 0;
+            enemiesRemaining--;
+        }
     }
 
     draw() {
