@@ -17,8 +17,7 @@ let wave = 1;
 let lives = 3;
 let screenShake = 0;
 let waveTimer = 0;
-let waveDelay = 180; // frames between waves
-let enemiesRemaining = 0;
+let waveDelay = 120; // frames between waves (2 seconds)
 let combo = 0;
 let comboTimer = 0;
 
@@ -323,7 +322,7 @@ class Enemy {
         // Enemy escaped off screen - count as gone but no points
         if (this.y > canvas.height + 50) {
             this.hp = 0;
-            enemiesRemaining--;
+            enemiesHandled++;
         }
     }
 
@@ -409,7 +408,7 @@ class Enemy {
         comboTimer = 60;
         const comboMultiplier = Math.min(combo, 10);
         score += this.points * comboMultiplier;
-        enemiesRemaining--;
+        enemiesHandled++;
 
         // Chance to drop power-up
         if (Math.random() < 0.15) {
@@ -531,31 +530,52 @@ class PowerUp {
 // ============================================
 // WAVE SYSTEM
 // ============================================
+let enemiesToSpawn = [];
+let spawnTimer = 0;
+let spawnInterval = 18; // frames between each enemy spawn (~300ms at 60fps)
+let totalWaveEnemies = 0;
+let enemiesHandled = 0; // killed + escaped
+
 function spawnWave() {
     const enemyCount = Math.min(5 + wave * 2, 30);
-    enemiesRemaining = enemyCount;
+    totalWaveEnemies = enemyCount;
+    enemiesHandled = 0;
+    enemiesToSpawn = [];
+    spawnTimer = 0;
 
     for (let i = 0; i < enemyCount; i++) {
-        setTimeout(() => {
-            if (state !== GameState.PLAYING) return;
-            const x = Math.random() * (canvas.width - 80) + 40;
-            const y = -30 - Math.random() * 200;
-            let type;
+        const x = Math.random() * (canvas.width - 80) + 40;
+        const rand = Math.random();
+        let type;
 
-            const rand = Math.random();
-            if (wave < 3) {
-                type = 'basic';
-            } else if (wave < 5) {
-                type = rand < 0.6 ? 'basic' : 'zigzag';
-            } else if (wave < 8) {
-                type = rand < 0.4 ? 'basic' : rand < 0.7 ? 'zigzag' : rand < 0.9 ? 'shooter' : 'tank';
-            } else {
-                type = rand < 0.25 ? 'basic' : rand < 0.5 ? 'zigzag' : rand < 0.75 ? 'shooter' : 'tank';
-            }
+        if (wave < 3) {
+            type = 'basic';
+        } else if (wave < 5) {
+            type = rand < 0.6 ? 'basic' : 'zigzag';
+        } else if (wave < 8) {
+            type = rand < 0.4 ? 'basic' : rand < 0.7 ? 'zigzag' : rand < 0.9 ? 'shooter' : 'tank';
+        } else {
+            type = rand < 0.25 ? 'basic' : rand < 0.5 ? 'zigzag' : rand < 0.75 ? 'shooter' : 'tank';
+        }
 
-            enemies.push(new Enemy(x, y, type));
-        }, i * 300);
+        enemiesToSpawn.push({ x, type });
     }
+}
+
+function updateSpawner() {
+    if (enemiesToSpawn.length === 0) return;
+
+    spawnTimer++;
+    if (spawnTimer >= spawnInterval) {
+        spawnTimer = 0;
+        const data = enemiesToSpawn.shift();
+        const y = -30;
+        enemies.push(new Enemy(data.x, y, data.type));
+    }
+}
+
+function isWaveComplete() {
+    return enemiesToSpawn.length === 0 && enemies.length === 0 && enemiesHandled >= totalWaveEnemies;
 }
 
 // ============================================
@@ -669,8 +689,11 @@ function update() {
         if (comboTimer <= 0) combo = 0;
     }
 
+    // Spawner
+    updateSpawner();
+
     // Wave management
-    if (enemies.length === 0 && enemiesRemaining <= 0) {
+    if (isWaveComplete()) {
         waveTimer++;
         if (waveTimer >= waveDelay) {
             wave++;
@@ -770,7 +793,10 @@ function startGame() {
     particles = [];
     powerUps = [];
     enemyBullets = [];
-    enemiesRemaining = 0;
+    enemiesToSpawn = [];
+    totalWaveEnemies = 0;
+    enemiesHandled = 0;
+    spawnTimer = 0;
     waveTimer = 0;
     screenShake = 0;
 
